@@ -2,7 +2,7 @@
 
 import os;
 
-APPNAME = 'helloworld'
+APPNAME = 'loxir'
 VERSION = '1.0'
 
 out = '.wafbuild'
@@ -14,7 +14,7 @@ def options(opt):
 def configure(ctx):
     ctx.load('compiler_cxx boost')
     # do not use date_time, timezone support is buggy and it's locale-unaware (?); use locale instead
-    ctx.check_boost(lib='asio program_options') # TODO change as needed
+    ctx.check_boost(lib='system program_options') # TODO change as needed
 
     setCxxFlags(ctx)
     setOSXSpecifics(ctx)
@@ -34,6 +34,7 @@ def setOSXSpecifics(ctx):
     if (ctx.env.DEST_OS == 'darwin'):
         ctx.env.append_unique('INCLUDES', '/opt/local/include')
         ctx.env.append_unique('LIBPATH', '/opt/local/lib')
+        ctx.env.append_unique('CXXFLAGS', '-Wno-unused-local-typedef')    # BOOST v1.59 workaround on OSX..
 
 def enforceColorClangOutput():
   if ('CXX' in os.environ and os.environ['CXX'] == 'clang++'):
@@ -51,6 +52,6 @@ def setCxxFlags(ctx):
     clangSpecificFlags = enforceColorClangOutput()
   
     ctx.env.append_unique('CXXFLAGS', 
-            ['-Wall', '-Werror', '-Woverloaded-virtual', '-std=c++11'] +
-            clangSpecificFlags)
+            ['-Wall', '-Werror', '-Woverloaded-virtual', '-std=c++11',
+                ] + clangSpecificFlags)
  
