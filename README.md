@@ -1,12 +1,11 @@
-# loxir - UDP-Controlled LIRC Client
+# udpirsend - UDP-Controlled LIRC IR Sender
 
 ## Introduction
 
-**loxir** enables UDP remote control of any LIRC server.
+**udpirsend** enables UDP remote control of any LIRC sender.
 
-The name originates from the fact that it was designed to be used with Loxone
-(http://www.loxone.com) home automation, that has the capability of sending
-simple UDP packets holding arbitrary data.
+It was designed to be used with Loxone (http://www.loxone.com) home automation,
+which has the capability of sending simple UDP packets holding arbitrary data.
 
 
 ## Installation
@@ -21,6 +20,14 @@ MacPorts installed).
 
 ## Usage
 
-Just run `./loxir &` to start it in the background. Optionally you can override
-various settings, like LIRC server address, etc. (TODO: list options here.)
+Just run `./udpirsend &` to start it in the background. Optionally you can override
+various settings, like LIRC server address, etc.
+
+
+## Debug
+
+To see debug output, specify a logfile via using --logfile switch or a config setting:
+logfile=~/.logs/udpirsend.log
+
+(Default config file location is ~/.udpirsendrc.)
 

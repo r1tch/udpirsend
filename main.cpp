@@ -10,6 +10,8 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
+#include "CommandParser.h"
+#include "Lirc.h"
 #include "Logger.h"
 #include "UdpServer.h"
 
@@ -23,13 +25,16 @@ parseArgs(int argc, char** argv, uint32_t* portNumber)
   };
 
   std::string logfile;
-  std::string configFile = std::string(getenv("HOME")) + "/.loxirrc";
+  std::string configFile = std::string(getenv("HOME")) + "/.udpirsendrc";
 
   options.add_options()
     ("help,h", "Help Screen")
-    ("port,p", value<uint32_t>(portNumber)->default_value(6969), "Port Number to Listen On")
-    ("logfile,l", value<std::string>(&logfile), "Logfile name, tilde is replaced with $HOME")
-    ("config", value<std::string>(&configFile)->default_value(configFile), "Configuration File");
+    ("port,p", value<uint32_t>(portNumber)->default_value(6969),
+    "Port Number to Listen On")
+    ("logfile,l", value<std::string>(&logfile),
+    "Logfile name, tilde is replaced with $HOME")
+    ("config", value<std::string>(&configFile)->default_value(configFile),
+    "Configuration File");
 
   variables_map vm;
   try {
@@ -60,7 +65,10 @@ main(int argc, char** argv)
   parseArgs(argc, argv, &portNumber);
 
   boost::asio::io_service io_service;
-  UdpServer udpServer(&io_service, portNumber);
+
+  Lirc lirc(&io_service);
+  CommandParser commandParser(&lirc);
+  UdpServer udpServer(&io_service, portNumber, &commandParser);
 
   try {
     io_service.run();

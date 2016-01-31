@@ -12,16 +12,25 @@
 
 class UdpServer {
 public:
-  UdpServer(boost::asio::io_service* io_service, uint32_t portNumber);
+  class ReceiveCallback {
+  public:
+    virtual void udpReceived(const std::string& bytes) = 0;
+  };
+
+public:
+  UdpServer(boost::asio::io_service* io_service,
+            uint32_t                 portNumber,
+            ReceiveCallback*         receiveCallback);
 
 private:
   void startReceive();
   void handleReceive(const boost::system::error_code& error,
-                     std::size_t bytes_transferred);
+                     std::size_t                      bytes_transferred);
 
 private:
   boost::asio::ip::udp::socket socket_;
   boost::array<char, 4096> receiveBuffer_;
   boost::asio::ip::udp::endpoint peer_;
+  ReceiveCallback* receiveCallback_;
 };
 #endif

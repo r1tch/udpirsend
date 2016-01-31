@@ -5,6 +5,7 @@
  */
 
 #include <boost/bind.hpp>
+#include <cassert>
 #include <cstdint>
 #include <iostream>
 
@@ -13,9 +14,13 @@
 
 using namespace boost::asio::ip;
 
-UdpServer::UdpServer(boost::asio::io_service* io_service, uint32_t portNumber)
+UdpServer::UdpServer(boost::asio::io_service* io_service,
+                     uint32_t                 portNumber,
+                     ReceiveCallback*         receiveCallback)
   : socket_(*io_service, udp::endpoint(udp::v4(), portNumber))
+  , receiveCallback_(receiveCallback)
 {
+  assert(receiveCallback);
   startReceive();
 }
 
@@ -41,9 +46,11 @@ UdpServer::handleReceive(const boost::system::error_code& error,
   if (error) {
     L("Receive error: " << error.message());
   } else {
+    receiveCallback_->udpReceived(
+      std::string(receiveBuffer_.data(), bytes_transferred));
+    // TODO remove below
     std::cout << "<< (" << bytes_transferred << "b from " << peer_ << "): "
               << std::string(receiveBuffer_.data(), bytes_transferred) << std::endl;
+    startReceive();
   }
-
-  startReceive();
 }
