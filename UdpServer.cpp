@@ -48,9 +48,6 @@ UdpServer::handleReceive(const boost::system::error_code& error,
   } else {
     receiveCallback_->udpReceived(
       std::string(receiveBuffer_.data(), bytes_transferred));
-    // TODO remove below
-    std::cout << "<< (" << bytes_transferred << "b from " << peer_ << "): "
-              << std::string(receiveBuffer_.data(), bytes_transferred) << std::endl;
     startReceive();
   }
 }

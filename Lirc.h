@@ -21,7 +21,7 @@ public:
   Lirc(boost::asio::io_service* io_service);
   void send(const std::string& bytes);
 
-  void shutdownSocket();
+  void shutdownSocket(const boost::system::error_code& error);
 
 private:
   void startReceive();

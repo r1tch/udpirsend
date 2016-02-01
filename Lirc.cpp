@@ -17,7 +17,7 @@ const uint16_t Lirc::DefaultInetPort_ = 8765;
 Lirc::Lirc(boost::asio::io_service* io_service)
   : socket_(*io_service),
   peer_(DefaultSocket_),
-  shutdownTimer_(*io_service, std::chrono::seconds(5))
+  shutdownTimer_(*io_service)
 {
 }
 
@@ -42,7 +42,9 @@ Lirc::send(const std::string& bytes)
   socket_.send(boost::asio::buffer(bytes));
 
   shutdownTimer_.cancel();
-  shutdownTimer_.async_wait(std::bind(&Lirc::shutdownSocket, this));
+  shutdownTimer_.expires_from_now(std::chrono::seconds(2));
+  shutdownTimer_.async_wait(std::bind(&Lirc::shutdownSocket, this,
+                                      std::placeholders::_1));
 }
 
 void
@@ -70,8 +72,18 @@ Lirc::handleReceive(const boost::system::error_code& error,
 }
 
 void
-Lirc::shutdownSocket()
+Lirc::shutdownSocket(const boost::system::error_code& error)
 {
+  if (error == boost::asio::error::operation_aborted) {
+    return;                             // happens upon cancel()
+  } else if (error) {
+    L("Lirc: shutdownSocket timer error: " << error.message());
+    return;
+  } else if (!socket_.is_open()) {
+    L("shutdownSocket: socket not open");
+    return;
+  }
+
   L("Shutting down socket");
   socket_.shutdown(boost::asio::local::stream_protocol::socket::shutdown_both);
   socket_.close();

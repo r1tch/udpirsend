@@ -9,11 +9,16 @@ out = '.wafbuild'
 
 def options(opt):
   opt.load('compiler_cxx')
+  try:
+    opt.load('boost')
+  except ImportError:
+    pass  # note: this is OK only at the download stage
   opt.add_option('-d', '--debug', action='store_true', default=False, help='Create debug version')
 
 def configure(ctx):
     ctx.load('compiler_cxx boost')
     ctx.check_boost(lib='system program_options')
+    ctx.check(features='cxx cxxprogram', lib=['pthread'], uselib_store='PTHREAD')
 
     setCxxFlags(ctx)
     setOSXSpecifics(ctx)
@@ -24,7 +29,7 @@ def build(ctx):
         features = 'cxx cxxprogram',
         source = ctx.path.ant_glob('*.cpp'),
         target = APPNAME,
-        use = ['BOOST'])
+        use = ['BOOST', 'PTHREAD'])
 
 ###################################
 def setOSXSpecifics(ctx):

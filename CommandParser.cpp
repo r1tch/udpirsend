@@ -8,12 +8,9 @@
 
 #include "CommandParser.h"
 #include "Lirc.h"
-#include "Logger.h"
 
 void
 CommandParser::udpReceived(const std::string& bytes)
 {
-  L("Sending to lirc:" << bytes);
-
   lirc_->send(bytes);
 }
